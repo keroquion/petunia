@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e40af">
+    <title>Petulap - Admin</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body class="bg-gray-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 text-white p-4 shadow-md flex justify-between items-center z-10 sticky top-0">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-laptop-medical text-xl text-blue-400"></i>
+            <h1 class="text-xl font-bold tracking-wide">PETULAP</h1>
+        </div>
+        <div id="nav-user-info" class="flex items-center gap-4">
+            <span id="user-display" class="font-medium text-sm sm:text-base bg-slate-800 px-3 py-1 rounded-full"></span>
+            <button onclick="App.logout()" class="text-red-400 hover:text-red-300 transition" title="Cerrar sesión">
+                <i class="fa-solid fa-right-from-bracket text-lg"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 w-11/12 max-w-md pointer-events-none"></div>
+
+    <!-- Contenido Principal -->
+    <main id="view-admin" class="flex-grow flex flex-col items-center justify-start p-4 sm:p-6 w-full max-w-6xl mx-auto">
+
+        <!-- Header -->
+        <div class="bg-white rounded-3xl shadow-md p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 border-t-4 border-blue-500 w-full">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="bg-slate-800 p-3 rounded-xl">
+                    <i class="fa-solid fa-chess-board text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-black text-gray-800 uppercase tracking-widest">Panel Maestro</h2>
+                    <p class="text-sm font-bold text-gray-500 uppercase tracking-wider text-xs">Visión global de planta</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+                <button onclick="AdminView.mostrarModalAsignar()" class="bg-blue-600 text-white hover:bg-blue-700 p-3 rounded-xl font-black transition flex items-center gap-2 shadow-lg uppercase tracking-widest text-xs border-b-4 border-blue-800 active:border-b-0 active:translate-y-1">
+                    <i class="fa-solid fa-plus"></i> Asignar Actividad
+                </button>
+                
+                <button onclick="AdminView.activarEmergencia()" class="bg-red-600 text-white hover:bg-red-700 p-3 rounded-xl font-black transition flex items-center gap-2 shadow-lg uppercase tracking-widest text-xs border-b-4 border-red-800 active:border-b-0 active:translate-y-1 animate-pulse">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Emergencia
+                </button>
+                
+                <input type="date" id="admin-fecha" class="p-3 border-2 border-gray-200 rounded-xl text-sm font-bold text-blue-900 outline-none focus:border-blue-500" onchange="AdminView.cargarDatos()">
+                
+                <button onclick="AdminView.cargarDatos()" class="bg-blue-100 text-blue-700 hover:bg-blue-200 p-3 rounded-xl font-black transition flex items-center gap-2 uppercase tracking-widest text-xs border-b-4 border-blue-300 active:border-b-0 active:translate-y-1">
+                    <i class="fa-solid fa-arrows-rotate"></i> Sync
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid de Técnicos -->
+        <div id="admin-grid-tecnicos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 w-full"></div>
+
+        <!-- Detalles -->
+        <div id="admin-detalles-container" class="space-y-4 mb-8 w-full"></div>
+
+        <!-- Modal Asignar -->
+        <div id="modal-asignar-admin" class="fixed inset-0 bg-black/60 z-50 hidden-view flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full border-t-8 border-blue-600">
+                <h3 class="text-2xl font-black text-blue-600 mb-4 pb-2 uppercase tracking-widest text-center">
+                    <i class="fa-solid fa-clipboard-list"></i> Asignar Tarea
+                </h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-black text-gray-500 mb-1 uppercase tracking-wider">Destinatario:</label>
+                        <select id="admin-destino" class="w-full p-4 border-2 border-gray-200 rounded-xl font-black text-blue-900 bg-gray-50 outline-none focus:border-blue-500 cursor-pointer select-tecnicos-dinamico">
+                            <option value="TODOS">TODOS (Planta)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-gray-500 mb-1 uppercase tracking-wider">Título de Actividad:</label>
+                        <input type="text" id="admin-titulo" class="w-full p-4 border-2 border-gray-200 rounded-xl uppercase font-black outline-none focus:border-blue-500 text-slate-800" placeholder="Ej. Limpieza General">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-black text-gray-500 mb-1 uppercase tracking-wider">Instrucciones (Opcional):</label>
+                        <textarea id="admin-detalle" rows="3" class="w-full p-3 border-2 border-gray-200 rounded-xl font-bold outline-none focus:border-blue-500 text-sm" placeholder="Detalles de la tarea..."></textarea>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 mt-6">
+                    <button id="btn-asignar-admin" onclick="AdminView.asignarMision()" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition uppercase tracking-widest border-b-4 border-blue-800 active:border-b-0 active:translate-y-1">
+                        Asignar
+                    </button>
+                    <button onclick="AdminView.ocultarModalAsignar()" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-4 rounded-xl transition uppercase tracking-widest border-b-4 border-gray-400 active:border-b-0 active:translate-y-1">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/utils/audio.js"></script>
+    <script src="../js/utils/helpers.js"></script>
+    <script src="../js/utils/ui.js"></script>
+    <script src="../js/api/database.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/views/admin.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+/* Estilos globales y de animación */
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.hidden-view { display: none !important; }
+.slide-down { animation: slideDown 0.3s ease-out forwards; }
+@keyframes slideDown { from { opacity: 0; max-height: 0; } to { opacity: 1; max-height: 1000px; } }
+
+.pulse-red { animation: pulseRed 2s infinite; }
+@keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+.pulse-blue { animation: pulseBlue 2s infinite; }
+@keyframes pulseBlue { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
+
+.gamer-click { animation: gamerClickAnim 0.2s ease-out !important; }
+@keyframes gamerClickAnim {
+    0% { transform: scale(0.9); filter: brightness(1.5) hue-rotate(90deg); }
+    50% { transform: scale(1.05); filter: brightness(1.2) hue-rotate(-45deg); }
+    100% { transform: scale(1); filter: brightness(1) hue-rotate(0deg); }
+}
+
+.text-outline { text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0px 2px 5px rgba(0,0,0,0.8); }
+button { transition: transform 0.1s, filter 0.1s; }
+button:active { transform: scale(0.95); }
+
+.checklist-item input[type="checkbox"] {
+    accent-color: #22c55e; width: 1.5rem; height: 1.5rem; cursor: pointer;
+}
+.checklist-item.checked span { text-decoration: line-through; color: #9ca3af; }
+
+/* Ocultar la flecha por defecto de details */
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+
+/* Vista Login */
+.view-login-container {
+    width: 100%;
+    max-width: 4xl;
+    background: transparent;
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8;
+    align-items: center;
+}
+
+@media (min-width: 768px) {
+    .view-login-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.version-changes {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .version-changes {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        padding-left: 1rem;
+        border-left: 4px solid #cbd5e1;
+    }
+}
+
+.login-form-container {
+    background-color: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    padding: 2rem;
+    position: relative;
+    border-bottom: 8px solid #2563eb;
+}
+
+@media (min-width: 640px) {
+    .login-form-container {
+        padding: 2.5rem;
+    }
+}
+
+/* Banner técnico */
+#tec-banner-activo {
+    border-bottom: 8px solid #2563eb;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Estados del técnico */
+#state-inicio, #state-proceso, #state-pedido-proceso, #state-pausado, #state-finalizacion {
+    background-color: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-shrink: 0;
+    border-top: 4px solid #e2e8f0;
+}
+
+@media (min-width: 640px) {
+    #state-inicio, #state-proceso, #state-pedido-proceso, #state-pausado, #state-finalizacion {
+        padding: 2rem;
+    }
+}
+
+/* Vista Ventas */
+.view-ventas-container {
+    width: 100%;
+}
+
+/* Vista Admin */
+.view-admin-container {
+    width: 100%;
+}
+
+/* Modales */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    padding: 2rem;
+    max-width: 24rem;
+    width: 100%;
+    text-align: center;
+    border: 4px solid #ef4444;
+    position: relative;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .version-changes-mobile {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 2px solid #e2e8f0;
+        display: block;
+        margin-top: 1.5rem;
+    }
+}
+
+/* Ajustes específicos para móviles */
+@media (max-width: 639px) {
+    .mobile-padding {
+        padding: 1rem;
+    }
+    
+    .mobile-rounded {
+        border-radius: 1rem;
+    }
+    
+    .mobile-text-size {
+        font-size: 0.75rem;
+    }
+}

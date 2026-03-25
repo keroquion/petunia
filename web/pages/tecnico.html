@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <title>Petulap - Técnico</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body class="bg-gray-100 text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 text-white p-4 shadow-md flex justify-between items-center z-10 sticky top-0">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-laptop-medical text-xl text-blue-400"></i>
+            <h1 class="text-xl font-bold tracking-wide">PETULAP</h1>
+        </div>
+        <div id="nav-user-info" class="flex items-center gap-4">
+            <span id="user-display" class="font-medium text-sm sm:text-base bg-slate-800 px-3 py-1 rounded-full"></span>
+            <button onclick="App.logout()" class="text-red-400 hover:text-red-300 transition" title="Cerrar sesión">
+                <i class="fa-solid fa-right-from-bracket text-lg"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 w-11/12 max-w-md pointer-events-none"></div>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow flex flex-col items-center justify-start p-4 sm:p-6 w-full max-w-lg mx-auto">
+
+        <!-- Banner Activo -->
+        <div id="tec-banner-activo" class="hidden-view bg-blue-600 text-white rounded-3xl shadow-xl p-6 mb-6 text-center border-b-8 border-blue-800">
+            <p class="text-blue-200 text-sm font-black uppercase tracking-widest mb-1" id="tec-banner-estado">ACTIVIDAD ACTUAL</p>
+            <h2 class="text-3xl font-black uppercase tracking-tight leading-tight mb-4 text-outline" id="tec-banner-actividad">LOTE XYZ</h2>
+            <div class="inline-flex items-center justify-center bg-blue-900 rounded-2xl px-6 py-3 border-2 border-blue-400 shadow-inner">
+                <i class="fa-solid fa-hourglass-half text-2xl mr-3 text-blue-300 fa-spin-pulse"></i>
+                <span id="tec-banner-tiempo" class="text-4xl font-black font-mono tracking-wider text-green-400 text-outline">0 min</span>
+            </div>
+        </div>
+
+        <!-- Contenedor Principal -->
+        <div class="bg-white rounded-3xl shadow-xl p-6 sm:p-8 border-t-4 border-slate-200 mb-6 w-full">
+
+            <!-- Estado: Libre (Iniciar Tarea) -->
+            <div id="state-inicio" class="">
+                <h2 class="text-xl font-black text-gray-800 mb-6 border-b-2 border-gray-100 pb-2 uppercase tracking-wide">
+                    <i class="fa-solid fa-clipboard-check text-blue-500 mr-2"></i> Nueva Actividad
+                </h2>
+                
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1 uppercase text-xs tracking-wider">Tipo de Equipo</label>
+                        <select id="tec-tipo-equipo" class="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-xl text-lg outline-none focus:border-blue-500 font-bold text-blue-900 cursor-pointer">
+                            <option value="LAPTOP">Laptop</option>
+                            <option value="PC">PC</option>
+                            <option value="PANTALLAS">Pantallas</option>
+                            <option value="OTROS">Otros</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1 uppercase text-xs tracking-wider">Nombre del Lote</label>
+                        <input type="text" id="tec-actividad" class="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-xl text-lg outline-none focus:border-blue-500 uppercase font-black text-slate-800" placeholder="EJ. CLONAR 40 EQUIPOS">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1 uppercase text-xs tracking-wider">Total Equipos</label>
+                        <input type="number" id="tec-total-lote" class="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-xl text-2xl text-center font-black text-blue-600" placeholder="0">
+                    </div>
+                </div>
+
+                <button id="btn-iniciar" onclick="TecnicoView.registrarEvento('Inicio')" 
+                    class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-5 rounded-2xl text-xl transition shadow-lg shadow-green-500/50 flex justify-center items-center gap-2 uppercase tracking-widest border-b-4 border-green-700 active:border-b-0 active:translate-y-1">
+                    <i class="fa-solid fa-play"></i> INICIAR JORNADA
+                </button>
+            </div>
+
+            <!-- Estado: Pedido en Proceso (Logística) -->
+            <div id="state-pedido-proceso" class="hidden-view space-y-4">
+                <h2 class="text-xl font-black text-indigo-800 mb-4 border-b-2 border-indigo-100 pb-2 uppercase tracking-wide flex items-center">
+                    <i class="fa-solid fa-truck-fast text-indigo-500 mr-2"></i> Ejecutando Misión
+                </h2>
+                
+                <div id="pedido-checklist-wrapper" class="bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-4 mb-6">
+                    <p class="text-xs font-black text-indigo-800 uppercase tracking-widest mb-3">
+                        <i class="fa-solid fa-list-check"></i> Detalles / Checklists:
+                    </p>
+                    <div id="pedido-checklist-container" class="space-y-2"></div>
+                </div>
+
+                <div id="pedido-observaciones-container" class="mb-6 hidden-view">
+                    <label class="block text-xs font-black text-red-600 mb-2 uppercase tracking-widest">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Observaciones (Si falta algo):
+                    </label>
+                    <textarea id="pedido-observaciones" rows="2" class="w-full p-4 border-2 border-red-300 bg-red-50 rounded-xl text-sm font-bold outline-none focus:border-red-500 placeholder-red-300" placeholder="Ej: Faltan 4 cables de poder..."></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-green-700 mb-1 uppercase tracking-wider text-center">
+                        <i class="fa-solid fa-boxes-stacked"></i> Cantidad Total Lograda
+                    </label>
+                    <input type="number" id="pedido-ok-total" class="w-full p-4 border-2 border-green-400 bg-green-50 rounded-xl text-4xl text-center font-black text-green-700 shadow-inner outline-none focus:border-green-600 mb-4" placeholder="0">
+                </div>
+
+                <button id="btn-completar-pedido" onclick="TecnicoView.finalizarPedido()" 
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-5 rounded-2xl text-xl transition shadow-lg shadow-indigo-500/50 flex justify-center items-center gap-2 uppercase tracking-widest border-b-4 border-indigo-800 active:border-b-0 active:translate-y-1">
+                    <i class="fa-solid fa-paper-plane"></i> COMPLETAR MISIÓN
+                </button>
+            </div>
+
+            <!-- Estado: En Proceso Normal -->
+            <div id="state-proceso" class="hidden-view space-y-4">
+                <div class="border-b-2 border-gray-100 pb-5 mb-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-2 uppercase text-xs tracking-wider">Motivo de Pausa</label>
+                    <input type="text" id="tec-motivo" class="w-full p-4 border-2 border-gray-200 bg-gray-50 rounded-xl mb-4 text-lg font-bold" placeholder="Baño, Almuerzo, Repuestos...">
+                    
+                    <button id="btn-pausa" onclick="TecnicoView.registrarEvento('Interrupción')" 
+                        class="w-full bg-amber-500 hover:bg-amber-600 text-white font-black py-4 rounded-xl text-lg transition shadow-lg shadow-amber-500/50 flex justify-center items-center gap-2 uppercase tracking-widest border-b-4 border-amber-700 active:border-b-0 active:translate-y-1">
+                        <i class="fa-solid fa-pause"></i> PAUSAR ACTIVIDAD
+                    </button>
+                </div>
+
+                <div>
+                    <button onclick="TecnicoView.cambiarSubEstado('finalizacion')" 
+                        class="w-full bg-slate-800 hover:bg-slate-900 text-white font-black py-4 rounded-xl transition text-lg flex justify-center items-center gap-2 uppercase tracking-widest border-b-4 border-black active:border-b-0 active:translate-y-1">
+                        IR A FINALIZAR <i class="fa-solid fa-forward-step"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Estado: Pausado -->
+            <div id="state-pausado" class="hidden-view">
+                <div class="bg-amber-100 text-amber-900 p-6 rounded-2xl text-center font-black mb-6 flex flex-col items-center border-2 border-amber-300 shadow-inner">
+                    <i class="fa-solid fa-hand-paper text-5xl mb-3 text-amber-500"></i>
+                    <span class="text-xl uppercase tracking-widest text-outline text-white">ACTIVIDAD PAUSADA</span>
+                </div>
+
+                <button id="btn-reiniciar" onclick="TecnicoView.registrarEvento('Reinicio')" 
+                    class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-5 rounded-2xl text-xl transition shadow-lg shadow-emerald-500/50 flex justify-center items-center gap-2 uppercase tracking-widest border-b-4 border-emerald-700 active:border-b-0 active:translate-y-1">
+                    <i class="fa-solid fa-play"></i> REANUDAR TRABAJO
+                </button>
+            </div>
+
+            <!-- Estado: Finalización -->
+            <div id="state-finalizacion" class="hidden-view">
+                <button onclick="TecnicoView.cambiarSubEstado('proceso')" 
+                    class="text-blue-600 text-sm font-black mb-6 hover:text-blue-800 flex items-center gap-1 uppercase tracking-wider">
+                    <i class="fa-solid fa-arrow-left"></i> Volver Atrás
+                </button>
+                
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-black text-green-700 mb-1 uppercase tracking-wider text-xs">
+                            <i class="fa-solid fa-check-circle"></i> Equipos OK
+                        </label>
+                        <input type="number" id="tec-ok" class="w-full p-4 border-2 border-green-400 bg-green-50 rounded-xl text-4xl text-center font-black text-green-700 shadow-inner focus:outline-none focus:ring-4 focus:ring-green-300" placeholder="0">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-black text-red-700 mb-1 uppercase tracking-wider text-xs">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Soporte/Pend
+                        </label>
+                        <input type="number" id="tec-fallo" class="w-full p-4 border-2 border-red-400 bg-red-50 rounded-xl text-4xl text-center font-black text-red-700 shadow-inner focus:outline-none focus:ring-4 focus:ring-red-300" placeholder="0">
+                    </div>
+                </div>
+
+                <button id="btn-fin" onclick="TecnicoView.registrarEvento('Fin')" 
+                    class="w-full bg-red-500 hover:bg-red-600 text-white font-black py-5 rounded-2xl text-xl transition shadow-lg shadow-red-500/50 flex justify-center items-center gap-2 uppercase tracking-widest border-b-4 border-red-700 active:border-b-0 active:translate-y-1">
+                    <i class="fa-solid fa-flag-checkered"></i> FINALIZAR TAREA
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Pendientes Ventas -->
+        <div id="tec-pendientes-ventas" class="mb-6 space-y-3 w-full">
+            <div id="tec-mensajes-container" class="space-y-3"></div>
+            <div id="tec-lista-pendientes" class="space-y-3"></div>
+        </div>
+
+        <!-- Actividades Admin -->
+        <details class="bg-white rounded-3xl shadow-md border-t-4 border-slate-700 mb-6 transition-all duration-300 group w-full" id="accordion-admin-tasks">
+            <summary class="font-black text-slate-800 p-5 cursor-pointer uppercase flex items-center justify-between outline-none">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-slate-500 group-open:text-blue-600 transition-colors"></i>
+                    <span>Actividades Generales</span>
+                </div>
+                <span class="bg-slate-200 text-slate-700 px-3 py-1 rounded-full text-xs" id="badge-admin-tasks">0</span>
+            </summary>
+            <div class="px-5 pb-5 space-y-3" id="tec-lista-admin-tasks"></div>
+        </details>
+
+        <!-- Historial -->
+        <div id="tec-historial" class="bg-white rounded-3xl shadow-md p-6 border-t-4 border-slate-200 w-full">
+            <h3 class="text-lg font-black text-gray-800 mb-4 border-b-2 border-gray-100 pb-2 uppercase tracking-widest text-sm">
+                <i class="fa-solid fa-clipboard-check text-green-500 mr-2"></i> Finalizados Hoy
+            </h3>
+            <ul id="tec-lista-historial" class="space-y-3"></ul>
+        </div>
+
+        <!-- Modal Emergencia -->
+        <div id="modal-emergencia" class="fixed inset-0 bg-black/90 z-[100] hidden-view flex items-center justify-center p-4">
+            <div class="bg-slate-900 rounded-3xl shadow-2xl p-8 max-w-sm w-full pulse-red border-4 border-red-500 text-center">
+                <i class="fa-solid fa-triangle-exclamation text-red-500 text-6xl mb-4 animate-ping"></i>
+                <h2 class="text-3xl font-black text-white uppercase tracking-widest mb-2 text-outline">¡PRIORIDAD ALTA!</h2>
+                <p class="text-red-300 font-bold mb-2 uppercase text-xs tracking-widest">Se ha asignado una urgencia:</p>
+                <p id="txt-emergencia-tarea" class="text-2xl font-black text-white p-4 bg-red-900 border-2 border-red-500 rounded-xl mb-6 shadow-inner text-outline"></p>
+                
+                <div class="space-y-3">
+                    <button onclick="TecnicoView.aceptarMisionPopup(true)" 
+                        class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl transition shadow-lg shadow-red-600/50 flex justify-center items-center gap-2 uppercase tracking-widest border-b-4 border-red-800 active:border-b-0 active:translate-y-1">
+                        <i class="fa-solid fa-bolt"></i> HACER AHORA
+                    </button>
+
+                    <button onclick="TecnicoView.aceptarMisionPopup(false)" 
+                        class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition flex justify-center items-center gap-2 border-b-4 border-slate-900 active:border-b-0 active:translate-y-1">
+                        <i class="fa-solid fa-layer-group"></i> Añadir a Pendientes
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Pedido -->
+        <div id="modal-pedido-ventas" class="fixed inset-0 bg-slate-900/80 z-[100] hidden-view flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full pulse-blue border-4 border-blue-500 text-center">
+                <i class="fa-solid fa-truck-fast text-blue-500 text-5xl mb-4"></i>
+                <h2 class="text-2xl font-black text-slate-800 uppercase tracking-widest mb-2">Nuevo Pedido</h2>
+                <p class="text-slate-500 font-bold mb-4 uppercase text-xs tracking-widest">Se solicita preparación:</p>
+                <p id="txt-pedido-ventas-tarea" class="text-xl font-black text-blue-800 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl mb-6 shadow-inner"></p>
+
+                <button onclick="TecnicoView.cerrarPopupPedido()" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl transition shadow-lg shadow-blue-600/50 flex justify-center items-center gap-2 uppercase tracking-widest border-b-4 border-blue-800 active:border-b-0 active:translate-y-1">
+                    <i class="fa-solid fa-thumbs-up"></i> Entendido
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/utils/audio.js"></script>
+    <script src="../js/utils/helpers.js"></script>
+    <script src="../js/utils/ui.js"></script>
+    <script src="../js/utils/timer.js"></script>
+    <script src="../js/api/database.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/views/tecnico.js"></script>
+
+</body>
+</html>

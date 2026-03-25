@@ -1,0 +1,134 @@
+/* ==========================================
+   PETULAP - Estilos Principales
+   ========================================== */
+
+/* Reset y Base */
+* {
+    box-sizing: border-box;
+}
+
+/* Animaciones */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hidden-view {
+    display: none !important;
+}
+
+.slide-down {
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 1000px; }
+}
+
+/* Efectos de pulso */
+.pulse-red {
+    animation: pulseRed 2s infinite;
+}
+
+@keyframes pulseRed {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.pulse-blue {
+    animation: pulseBlue 2s infinite;
+}
+
+@keyframes pulseBlue {
+    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+    70% { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+/* Click gamer */
+.gamer-click {
+    animation: gamerClickAnim 0.2s ease-out !important;
+}
+
+@keyframes gamerClickAnim {
+    0% { transform: scale(0.9); filter: brightness(1.5) hue-rotate(90deg); }
+    50% { transform: scale(1.05); filter: brightness(1.2) hue-rotate(-45deg); }
+    100% { transform: scale(1); filter: brightness(1) hue-rotate(0deg); }
+}
+
+/* Texto con outline */
+.text-outline {
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0px 2px 5px rgba(0,0,0,0.8);
+}
+
+/* Botones */
+button {
+    transition: transform 0.1s, filter 0.1s;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+/* Checklist */
+.checklist-item input[type="checkbox"] {
+    accent-color: #22c55e;
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.checklist-item.checked span {
+    text-decoration: line-through;
+    color: #9ca3af;
+}
+
+/* Detalles sin flecha */
+details > summary {
+    list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Spinner de carga */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.fa-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Responsive utilidades */
+@media (max-width: 640px) {
+    .mobile-full {
+        width: 100% !important;
+    }
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
